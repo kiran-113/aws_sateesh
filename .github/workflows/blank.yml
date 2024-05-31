@@ -2,7 +2,8 @@
 # The workflow Creates static website using aws s3
 name: AWS example workflow
 on:
-  push
+  push:
+    branches: [ "main" ]
 env:
   BUCKET_NAME : "githubsample-645373"
   AWS_REGION : "ap-south-1"
