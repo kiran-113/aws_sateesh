@@ -27,3 +27,4 @@ jobs:
       - name:  Copy index.html to s3
         run: |
           aws s3 cp ./index.html s3://${{ env.BUCKET_NAME }}/
+          aws s3api put-object-acl - bucket s3://${{ env.BUCKET_NAME }} - key OBJECT-KEY - acl public-read
