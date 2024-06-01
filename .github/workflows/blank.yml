@@ -1,26 +1,32 @@
-# Sample workflow to access AWS resources when workflow is tied to branch
-# The workflow Creates static website using aws s3
-name: AWS example workflow
+name: Terraform AWS example workflow
+
 on:
   push:
     branches: [ "main" ]
+
 env:
-  BUCKET_NAME : "githubsample-645373"
-  AWS_REGION : "ap-south-1"
-# permission can be added at job level or workflow level
+  TF_VERSION: "1.4.0"
+
 permissions:
-  id-token: write   # This is required for requesting the JWT
-  contents: read    # This is required for actions/checkout
+  id-token: write
+  contents: read
+
 jobs:
-  S3PackageUpload:
+  TerraformDeployment:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        environment: [dev, stage]
+        aws_account: ["arn:aws:iam::666562444707:role/new_oidc_github", "arn:aws:iam::666562444707:role/github-oidc-stage"]
+    
     steps:
       - name: Git clone the repository
         uses: actions/checkout@v4
-      - name: configure aws credentials
+
+      - name: Configure AWS credentials for each environment
         uses: aws-actions/configure-aws-credentials@v1
         with:
-          role-to-assume: arn:aws:iam::666562444707:role/new_oidc_github
+          role-to-assume: ${{ matrix.aws_account }}
           audience: sts.amazonaws.com
           aws-region: ${{ env.AWS_REGION }}
       # Upload a file to AWS s3
