@@ -28,12 +28,9 @@ jobs:
         with:
           role-to-assume: ${{ matrix.aws_account }}
           audience: sts.amazonaws.com
+
           aws-region: ${{ env.AWS_REGION }}
       # Upload a file to AWS s3
       - name:  Copy index.html to s3
         run: |
           aws s3 cp ./index.html s3://${{ env.BUCKET_NAME }}/ --acl public-read
-
-          
-
-
