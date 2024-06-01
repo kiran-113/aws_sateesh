@@ -28,25 +28,9 @@ jobs:
         with:
           role-to-assume: ${{ matrix.aws_account }}
           audience: sts.amazonaws.com
-          aws-region:  ${{ env.AWS_REGION }}
 
-      - name: Install Terraform
-        uses: hashicorp/setup-terraform@v2
-        with:
-          terraform_version: ${{ env.TF_VERSION }}
-
-      - name: Terraform Init
-        working-directory: terraform/${{ matrix.environment }}
-        run: terraform init
-
-      - name: Terraform Validate
-        working-directory: terraform/${{ matrix.environment }}
-        run: terraform validate
-      
-      - name: Terraform Plan
-        working-directory: terraform/${{ matrix.environment }}
-        run: terraform plan -var-file=${{ matrix.environment }}/terraform.tfvars -out=tfplan
-
-      - name: Terraform Apply
-        working-directory: terraform/${{ matrix.environment }}
-        run: terraform apply -auto-approve tfplan
+          aws-region: ${{ env.AWS_REGION }}
+      # Upload a file to AWS s3
+      - name:  Copy index.html to s3
+        run: |
+          aws s3 cp ./index.html s3://${{ env.BUCKET_NAME }}/ --acl public-read
