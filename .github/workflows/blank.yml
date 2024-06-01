@@ -2,7 +2,8 @@
 # The workflow Creates static website using aws s3
 name: AWS example workflow
 on:
-  push
+  push:
+    branches: [ "main" ]
 env:
   BUCKET_NAME : "githubsample-645373"
   AWS_REGION : "ap-south-1"
@@ -17,10 +18,10 @@ jobs:
       - name: Git clone the repository
         uses: actions/checkout@v4
       - name: configure aws credentials
-        uses: aws-actions/configure-aws-credentials@v3
+        uses: aws-actions/configure-aws-credentials@v1
         with:
           role-to-assume: arn:aws:iam::666562444707:role/new_oidc_github
-          role-session-name: samplerolesession
+          audience: sts.amazonaws.com
           aws-region: ${{ env.AWS_REGION }}
       # Upload a file to AWS s3
       - name:  Copy index.html to s3
