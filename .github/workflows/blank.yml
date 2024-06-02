@@ -1,29 +1,129 @@
-# Sample workflow to access AWS resources when workflow is tied to branch
-# The workflow Creates static website using aws s3
-name: AWS example workflow
+name: AWS Terraform Workflow
+
 on:
   push:
     branches: [ "main" ]
+
 env:
-  BUCKET_NAME : "githubsample-645373"
-  AWS_REGION : "ap-south-1"
-# permission can be added at job level or workflow level
+  BUCKET_NAME: "githubsample-645373"
+  AWS_REGION: "ap-south-1"
+
 permissions:
-  id-token: write   # This is required for requesting the JWT
-  contents: read    # This is required for actions/checkout
+  id-token: write
+  contents: read
+
 jobs:
-  S3PackageUpload:
+  terraform-init:
+    name: Terraform Init Stage
     runs-on: ubuntu-latest
+
     steps:
       - name: Git clone the repository
-        uses: actions/checkout@v4
-      - name: configure aws credentials
+        uses: actions/checkout@v2
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v1
+
+      - name: Terraform Init
+        run: terraform init
+
+  terraform-plan:
+    name: Terraform Plan Stage
+    runs-on: ubuntu-latest
+    needs: terraform-init
+
+    steps:
+      - name: Git clone the repository
+        uses: actions/checkout@v2
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v1
+
+      - name: Terraform Plan
+        run: terraform plan -out=tfplan
+
+  terraform-apply:
+    name: Terraform Apply Stage
+    runs-on: ubuntu-latest
+    needs: terraform-plan
+
+    steps:
+      - name: Git clone the repository
+        uses: actions/checkout@v2
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v1
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve tfplan
+
+  deploy:
+    name: Deploy Stage
+    runs-on: ubuntu-latest
+    needs: terraform-apply
+
+    steps:
+      - name: Git clone the repository
+        uses: actions/checkout@v2
+
+      - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v1
         with:
           role-to-assume: arn:aws:iam::666562444707:role/new_oidc_github
           audience: sts.amazonaws.com
           aws-region: ${{ env.AWS_REGION }}
-      # Upload a file to AWS s3
-      - name:  Copy index.html to s3
+
+      - name: Copy index.html to S3
         run: |
           aws s3 cp ./index.html s3://${{ env.BUCKET_NAME }}/ --acl public-read
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# # Sample workflow to access AWS resources when workflow is tied to branch
+# # The workflow Creates static website using aws s3
+# name: AWS example workflow
+# on:
+#   push:
+#     branches: [ "main" ]
+# env:
+#   BUCKET_NAME : "githubsample-645373"
+#   AWS_REGION : "ap-south-1"
+# # permission can be added at job level or workflow level
+# permissions:
+#   id-token: write   # This is required for requesting the JWT
+#   contents: read    # This is required for actions/checkout
+# jobs:
+#   S3PackageUpload:
+#     runs-on: ubuntu-latest
+#     steps:
+#       - name: Git clone the repository
+#         uses: actions/checkout@v4
+#       - name: configure aws credentials
+#         uses: aws-actions/configure-aws-credentials@v1
+#         with:
+#           role-to-assume: arn:aws:iam::666562444707:role/new_oidc_github
+#           audience: sts.amazonaws.com
+#           aws-region: ${{ env.AWS_REGION }}
+#       # Upload a file to AWS s3
+#       - name:  Copy index.html to s3
+#         run: |
+#           aws s3 cp ./index.html s3://${{ env.BUCKET_NAME }}/ --acl public-read
