@@ -2,7 +2,7 @@ name: AWS Terraform Workflow
 
 on:
   push:
-    branches: [ "main" ]
+    branches: [ "tf" ]
 
 env:
   BUCKET_NAME: "githubsample-645373"
