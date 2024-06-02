@@ -19,12 +19,19 @@ jobs:
 
     steps:
       - name: Git clone the repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Set up Terraform
-        uses: hashicorp/setup-terraform@v1
+        uses: hashicorp/setup-terraform@v2
 
-      - name: Terraform Init
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: arn:aws:iam::666562444707:role/new_oidc_github
+          audience: sts.amazonaws.com
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Download Terraform modules
         run: terraform init
 
   terraform-plan:
@@ -34,10 +41,20 @@ jobs:
 
     steps:
       - name: Git clone the repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Set up Terraform
-        uses: hashicorp/setup-terraform@v1
+        uses: hashicorp/setup-terraform@v2
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: arn:aws:iam::666562444707:role/new_oidc_github
+          audience: sts.amazonaws.com
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Download Terraform modules
+        run: terraform init
 
       - name: Terraform Plan
         run: terraform plan -out=tfplan
@@ -49,10 +66,20 @@ jobs:
 
     steps:
       - name: Git clone the repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Set up Terraform
-        uses: hashicorp/setup-terraform@v1
+        uses: hashicorp/setup-terraform@v2
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          role-to-assume: arn:aws:iam::666562444707:role/new_oidc_github
+          audience: sts.amazonaws.com
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Download Terraform modules
+        run: terraform init
 
       - name: Terraform Apply
         run: terraform apply -auto-approve tfplan
@@ -64,10 +91,10 @@ jobs:
 
     steps:
       - name: Git clone the repository
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v1
+        uses: aws-actions/configure-aws-credentials@v2
         with:
           role-to-assume: arn:aws:iam::666562444707:role/new_oidc_github
           audience: sts.amazonaws.com
@@ -76,54 +103,3 @@ jobs:
       - name: Copy index.html to S3
         run: |
           aws s3 cp ./index.html s3://${{ env.BUCKET_NAME }}/ --acl public-read
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-# # Sample workflow to access AWS resources when workflow is tied to branch
-# # The workflow Creates static website using aws s3
-# name: AWS example workflow
-# on:
-#   push:
-#     branches: [ "main" ]
-# env:
-#   BUCKET_NAME : "githubsample-645373"
-#   AWS_REGION : "ap-south-1"
-# # permission can be added at job level or workflow level
-# permissions:
-#   id-token: write   # This is required for requesting the JWT
-#   contents: read    # This is required for actions/checkout
-# jobs:
-#   S3PackageUpload:
-#     runs-on: ubuntu-latest
-#     steps:
-#       - name: Git clone the repository
-#         uses: actions/checkout@v4
-#       - name: configure aws credentials
-#         uses: aws-actions/configure-aws-credentials@v1
-#         with:
-#           role-to-assume: arn:aws:iam::666562444707:role/new_oidc_github
-#           audience: sts.amazonaws.com
-#           aws-region: ${{ env.AWS_REGION }}
-#       # Upload a file to AWS s3
-#       - name:  Copy index.html to s3
-#         run: |
-#           aws s3 cp ./index.html s3://${{ env.BUCKET_NAME }}/ --acl public-read
