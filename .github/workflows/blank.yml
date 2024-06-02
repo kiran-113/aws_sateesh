@@ -2,7 +2,7 @@ name: AWS Terraform Workflow
 
 on:
   push:
-    branches: [ "tf" ]
+    branches: [ "main", "tf" ]
 
 env:
   BUCKET_NAME: "githubsample-645373"
@@ -11,6 +11,7 @@ env:
 permissions:
   id-token: write
   contents: read
+  actions: write
 
 jobs:
   terraform-init:
@@ -59,6 +60,12 @@ jobs:
       - name: Terraform Plan
         run: terraform plan -out=tfplan
 
+      - name: Upload Terraform plan
+        uses: actions/upload-artifact@v3
+        with:
+          name: tfplan
+          path: tfplan
+
   terraform-apply:
     name: Terraform Apply Stage
     runs-on: ubuntu-latest
@@ -77,6 +84,12 @@ jobs:
           role-to-assume: arn:aws:iam::666562444707:role/new_oidc_github
           audience: sts.amazonaws.com
           aws-region: ${{ env.AWS_REGION }}
+
+      - name: Download Terraform plan
+        uses: actions/download-artifact@v3
+        with:
+          name: tfplan
+          path: .
 
       - name: Download Terraform modules
         run: terraform init
