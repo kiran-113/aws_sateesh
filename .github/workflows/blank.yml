@@ -1,6 +1,9 @@
 name: AWS Terraform Workflow
 
 on:
+  push:
+    branches: [ "main", "tf" ]
+    
   workflow_dispatch:
     inputs:
       action:
