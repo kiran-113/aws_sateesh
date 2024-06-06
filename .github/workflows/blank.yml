@@ -1,6 +1,10 @@
 name: AWS Terraform Workflow
 
+# Specify the events that trigger the workflow
 on:
+  push:
+    branches: [ "main", "tf" ]
+    
   workflow_dispatch:
     inputs:
       action:
@@ -138,7 +142,6 @@ jobs:
       - name: Copy index.html to S3
         run: |
           aws s3 cp ./index.html s3://${{ env.BUCKET_NAME }}/ --acl public-read
-
 
 # name: AWS Terraform Workflow
 
