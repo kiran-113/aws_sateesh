@@ -69,7 +69,7 @@ jobs:
           terraform init
           terraform providers # Show provider versions
           terraform plan -no-color # Plan without color for better logs
-          terraform plan -out=tfplan-${{ github.sha }}
+          terraform plan -out=tfplan
 
       - name: Upload Terraform plan
         uses: actions/upload-artifact@v4
@@ -80,7 +80,7 @@ jobs:
       - name: Upload Terraform plan
         uses: actions/upload-artifact@v4
         with:
-          name: tfplan
+          name: tfplan-${{ github.sha }}
           path: tfplan
 
   terraform-apply-destroy:
@@ -108,7 +108,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: tfplan-${{ github.sha }}
-          path: tfplan
+          path: .
       - name: Terraform Apply or Destroy
         run: |
           echo "Action input: ${{ github.event.inputs.action }}"
