@@ -111,9 +111,6 @@ jobs:
       - name: Download Terraform modules
         run: terraform init
 
-      - name: Output action input for debugging
-        run: echo "Action input: ${{ github.event.inputs.action }}"
-
       - name: Terraform Apply or Destroy
         run: |
           echo "Action input: ${{ github.event.inputs.action }}"
