@@ -64,8 +64,17 @@ jobs:
           role-to-assume: arn:aws:iam::666562444707:role/new_oidc_github
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Terraform Plan
-        run: terraform plan -out=tfplan
+      - name: Terraform Plan (Debug)
+        run: |
+          terraform init -upgrade
+          terraform providers # Show provider versions
+          terraform plan -no-color # Plan without color for better logs
+
+      - name: Upload Terraform plan
+        uses: actions/upload-artifact@v4
+        with:
+          name: tfplan
+          path: tfplan 
 
       - name: Upload Terraform plan
         uses: actions/upload-artifact@v4
