@@ -3,8 +3,8 @@ name: AWS Terraform Workflow
 # Specify the events that trigger the workflow
 on:
   push:
-    branches: [ "main", "tf" ]
-    
+    branches:
+      - tf
   workflow_dispatch:
     inputs:
       action:
@@ -31,19 +31,13 @@ jobs:
 
     steps:
       - name: Git clone the repository
-        uses: actions/checkout@v3
-        with:
-          ref: tf
+        uses: actions/checkout@v4 # Updated to support Node.js 20
 
       - name: Set up Terraform
-        uses: hashicorp/setup-terraform@v2
+        uses: hashicorp/setup-terraform@v2 # Requires verification for Node.js 20
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v2
-        with:
-          role-to-assume: arn:aws:iam::666562444707:role/new_oidc_github
-          audience: sts.amazonaws.com
-          aws-region: ${{ env.AWS_REGION }}
+        uses: aws-actions/configure-aws-credentials@v3 # Updated to support Node.js 20
 
       - name: Download Terraform modules
         run: terraform init
@@ -55,19 +49,13 @@ jobs:
 
     steps:
       - name: Git clone the repository
-        uses: actions/checkout@v3
-        with:
-          ref: tf
+        uses: actions/checkout@v4 # Updated to support Node.js 20
 
       - name: Set up Terraform
-        uses: hashicorp/setup-terraform@v2
+        uses: hashicorp/setup-terraform@v2 # Requires verification for Node.js 20
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v2
-        with:
-          role-to-assume: arn:aws:iam::666562444707:role/new_oidc_github
-          audience: sts.amazonaws.com
-          aws-region: ${{ env.AWS_REGION }}
+        uses: aws-actions/configure-aws-credentials@v3 # Updated to support Node.js 20
 
       - name: Download Terraform modules
         run: terraform init
@@ -76,10 +64,7 @@ jobs:
         run: terraform plan -out=tfplan
 
       - name: Upload Terraform plan
-        uses: actions/upload-artifact@v3
-        with:
-          name: tfplan
-          path: tfplan
+        uses: actions/upload-artifact@v4 # Updated to support Node.js 20
 
   terraform-apply-destroy:
     name: Terraform Apply or Destroy Stage
@@ -89,25 +74,16 @@ jobs:
 
     steps:
       - name: Git clone the repository
-        uses: actions/checkout@v3
-        with:
-          ref: tf
+        uses: actions/checkout@v4 # Updated to support Node.js 20
 
       - name: Set up Terraform
-        uses: hashicorp/setup-terraform@v2
+        uses: hashicorp/setup-terraform@v2 # Requires verification for Node.js 20
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v2
-        with:
-          role-to-assume: arn:aws:iam::666562444707:role/new_oidc_github
-          audience: sts.amazonaws.com
-          aws-region: ${{ env.AWS_REGION }}
+        uses: aws-actions/configure-aws-credentials@v3 # Updated to support Node.js 20
 
       - name: Download Terraform plan
-        uses: actions/download-artifact@v3
-        with:
-          name: tfplan
-          path: .
+        uses: actions/download-artifact@v4 # Updated to support Node.js 20
 
       - name: Download Terraform modules
         run: terraform init
@@ -128,16 +104,10 @@ jobs:
 
     steps:
       - name: Git clone the repository
-        uses: actions/checkout@v3
-        with:
-          ref: tf
+        uses: actions/checkout@v4 # Updated to support Node.js 20
 
       - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v2
-        with:
-          role-to-assume: arn:aws:iam::666562444707:role/new_oidc_github
-          audience: sts.amazonaws.com
-          aws-region: ${{ env.AWS_REGION }}
+        uses: aws-actions/configure-aws-credentials@v3 # Updated to support Node.js 20
 
       - name: Copy index.html to S3
         run: |
