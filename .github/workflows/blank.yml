@@ -111,17 +111,23 @@ jobs:
           path: .
       - name: Terraform Apply or Destroy
         run: |
-          echo "Action input: ${{ github.event.inputs.action }}"
-          if [ "${{ github.event.inputs.action }}" == "apply" ]; then  # Correct reference
-            terraform init -upgrade
-            terraform apply -auto-approve tfplan
-          elif [ "${{ github.event.inputs.action }}" == "destroy" ]; then  # Correct reference
-            terraform init -upgrade
-            terraform destroy -auto-approve
-          else
-            echo "Invalid action. Choose 'apply' or 'destroy'."
-            exit 1 
-          fi  
+            echo "Action input from event: ${{ github.event.inputs.action }}" 
+            action=${{ github.event.inputs.action }}  
+            if [ -z "$action" ]; then  # Check if $action is empty
+              echo "Action not provided, using default 'apply'."
+              action="apply"          # Set default to 'apply'
+            fi 
+            echo "Final action: $action"
+            if [ "$action" == "apply" ]; then  # Correct reference
+              terraform init -upgrade
+              terraform apply -auto-approve tfplan
+            elif [ "$action" == "destroy" ]; then  # Correct reference
+              terraform init -upgrade
+              terraform destroy -auto-approve
+            else
+              echo "Invalid action. Choose 'apply' or 'destroy'."
+              exit 1 
+            fi
   deploy:  # Deploy Stage (runs only if 'apply' is selected)
     name: Deploy Stage
     runs-on: ubuntu-latest
