@@ -2,7 +2,7 @@ name: AWS Terraform Workflow
 
 on:
   push:
-    branches: [ "main", "tf" ]
+    branches: ["main", "tf"]
   workflow_dispatch:
     inputs:
       action:
@@ -20,7 +20,6 @@ env:
 permissions:
   id-token: write
   contents: read
-  actions: write
 
 jobs:
   terraform-init:
@@ -31,7 +30,7 @@ jobs:
       - name: Git clone the repository
         uses: actions/checkout@v4
         with:
-          ref: tf
+          ref: tf 
 
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v3
@@ -40,10 +39,9 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::666562444707:role/new_oidc_github
-          audience: sts.amazonaws.com
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Download Terraform modules
+      - name: Terraform Init
         run: terraform init
 
   terraform-plan:
@@ -55,7 +53,7 @@ jobs:
       - name: Git clone the repository
         uses: actions/checkout@v4
         with:
-          ref: tf
+          ref: tf 
 
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v3
@@ -64,11 +62,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::666562444707:role/new_oidc_github
-          audience: sts.amazonaws.com
           aws-region: ${{ env.AWS_REGION }}
-
-      - name: Download Terraform modules
-        run: terraform init
 
       - name: Terraform Plan
         run: terraform plan -out=tfplan
@@ -79,18 +73,17 @@ jobs:
           name: tfplan
           path: tfplan
 
-
   terraform-apply-destroy:
     name: Terraform Apply or Destroy Stage
     runs-on: ubuntu-latest
     needs: terraform-plan
-    if: ${{ github.event.inputs.action == 'apply' || github.event.inputs.action == 'destroy' }}
+    # Remove 'if' condition here to always run after 'terraform-plan'
 
     steps:
       - name: Git clone the repository
         uses: actions/checkout@v4
         with:
-          ref: tf
+          ref: tf 
 
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v3
@@ -99,7 +92,6 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::666562444707:role/new_oidc_github
-          audience: sts.amazonaws.com
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Download Terraform plan
@@ -107,10 +99,6 @@ jobs:
         with:
           name: tfplan
           path: .
-
-      - name: Download Terraform modules
-        run: terraform init
-
       - name: Terraform Apply or Destroy
         run: |
           echo "Action input: ${{ github.event.inputs.action }}"
@@ -118,13 +106,15 @@ jobs:
             terraform apply -auto-approve tfplan
           elif [ "${{ github.event.inputs.action }}" == "destroy" ]; then
             terraform destroy -auto-approve
+          else
+            echo "Invalid action. Choose 'apply' or 'destroy'."
+            exit 1 
           fi
-
-  deploy:
+  deploy:  # Deploy Stage (runs only if 'apply' is selected)
     name: Deploy Stage
     runs-on: ubuntu-latest
     needs: terraform-apply-destroy
-    if: ${{ github.event.inputs.action == 'apply' }}
+    if: ${{ github.event.inputs.action == 'apply' }}  # Conditional for 'apply'
 
     steps:
       - name: Git clone the repository
@@ -136,13 +126,11 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: arn:aws:iam::666562444707:role/new_oidc_github
-          audience: sts.amazonaws.com
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Copy index.html to S3
         run: |
           aws s3 cp ./index.html s3://${{ env.BUCKET_NAME }}/ --acl public-read
-
 
 # name: AWS Terraform Workflow
 
