@@ -108,7 +108,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: tfplan-${{ github.sha }}
-          path: .
+          path: tfplan
       - name: Terraform Apply or Destroy
         run: |
           echo "Action input: ${{ github.event.inputs.action }}"
