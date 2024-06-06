@@ -115,7 +115,7 @@ jobs:
             action=${{ github.event.inputs.action }}  
             if [ -z "$action" ]; then  # Check if $action is empty
               echo "Action not provided, using default 'apply'."
-              action="apply"          # Set default to 'apply'
+              action="destroy"          # Set default to 'apply'
             fi 
             echo "Final action: $action"
             if [ "$action" == "apply" ]; then  # Correct reference
@@ -132,7 +132,7 @@ jobs:
     name: Deploy Stage
     runs-on: ubuntu-latest
     needs: terraform-apply-destroy
-    if: ${{ github.event.inputs.action == 'apply' }}  # Conditional for 'apply'
+
 
     steps:
       - name: Git clone the repository
