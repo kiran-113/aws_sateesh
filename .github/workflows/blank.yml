@@ -79,8 +79,6 @@ jobs:
           name: tfplan
           path: tfplan
 
-      - name: Output action input for debugging
-        run: echo "Action input: ${{ github.event.inputs.action }}"
 
   terraform-apply-destroy:
     name: Terraform Apply or Destroy Stage
@@ -147,6 +145,8 @@ jobs:
       - name: Copy index.html to S3
         run: |
           aws s3 cp ./index.html s3://${{ env.BUCKET_NAME }}/ --acl public-read
+
+
 # name: AWS Terraform Workflow
 
 # on:
