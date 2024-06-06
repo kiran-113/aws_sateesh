@@ -81,6 +81,9 @@ jobs:
           name: tfplan
           path: tfplan
 
+      - name: Output action input for debugging
+        run: echo "Action input: ${{ github.event.inputs.action }}"
+
   terraform-apply-destroy:
     name: Terraform Apply or Destroy Stage
     runs-on: ubuntu-latest
@@ -114,10 +117,11 @@ jobs:
 
       - name: Terraform Apply or Destroy
         run: |
+          echo "Action input: ${{ github.event.inputs.action }}"
           if [ "${{ github.event.inputs.action }}" == "apply" ]; then
             terraform apply -auto-approve tfplan
           elif [ "${{ github.event.inputs.action }}" == "destroy" ]; then
-            terraform destroy -auto-approve tfplan
+            terraform destroy -auto-approve
           fi
 
   deploy:
