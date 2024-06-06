@@ -1,14 +1,11 @@
 name: AWS Terraform Workflow
 
 on:
-
-
   workflow_dispatch:
     inputs:
       action:
         description: 'Action to perform (apply or destroy)'
         required: true
-        default: 'apply'
         type: choice
         options:
           - apply
@@ -31,6 +28,8 @@ jobs:
     steps:
       - name: Git clone the repository
         uses: actions/checkout@v3
+        with:
+          ref: tf
 
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v2
@@ -53,6 +52,8 @@ jobs:
     steps:
       - name: Git clone the repository
         uses: actions/checkout@v3
+        with:
+          ref: main
 
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v2
@@ -80,11 +81,13 @@ jobs:
     name: Terraform Apply or Destroy Stage
     runs-on: ubuntu-latest
     needs: terraform-plan
-    if: github.event.inputs.action == 'apply' || github.event.inputs.action == 'destroy'
+    if: ${{ github.event.inputs.action == 'apply' || github.event.inputs.action == 'destroy' }}
 
     steps:
       - name: Git clone the repository
         uses: actions/checkout@v3
+        with:
+          ref: main
 
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v2
@@ -122,6 +125,8 @@ jobs:
     steps:
       - name: Git clone the repository
         uses: actions/checkout@v3
+        with:
+          ref: main
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v2
@@ -133,6 +138,8 @@ jobs:
       - name: Copy index.html to S3
         run: |
           aws s3 cp ./index.html s3://${{ env.BUCKET_NAME }}/ --acl public-read
+
+
 # name: AWS Terraform Workflow
 
 # on:
