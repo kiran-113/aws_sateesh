@@ -127,28 +127,7 @@ jobs:
               exit 1 
             fi
             
-  deploy:  # Deploy Stage (runs only if 'apply' is selected)
-    name: Deploy Stage
-    runs-on: ubuntu-latest
-    needs: terraform-apply-destroy
-
-
-    steps:
-      - name: Git clone the repository
-        uses: actions/checkout@v4
-        with:
-          ref: tf
-
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          role-to-assume: arn:aws:iam::666562444707:role/new_oidc_github
-          aws-region: ${{ env.AWS_REGION }}
-
-      - name: Copy index.html to S3
-        run: |
-          aws s3 cp ./index.html s3://${{ env.BUCKET_NAME }}/ --acl public-read
-
+  
 # name: AWS Terraform Workflow
 
 # on:
