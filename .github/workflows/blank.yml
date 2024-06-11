@@ -27,8 +27,7 @@ jobs:
     steps:
       - name: Git clone the repository
         uses: actions/checkout@v4
-        with:
-          ref: tf 
+       
 
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v3
@@ -50,8 +49,7 @@ jobs:
     steps:
       - name: Git clone the repository
         uses: actions/checkout@v4
-        with:
-          ref: tf 
+        
 
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v3
@@ -90,8 +88,7 @@ jobs:
     steps:
       - name: Git clone the repository
         uses: actions/checkout@v4
-        with:
-          ref: tf 
+        
 
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v3
