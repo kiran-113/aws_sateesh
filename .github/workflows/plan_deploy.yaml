@@ -71,14 +71,14 @@ jobs:
         path: tfplan
     
     - name: Download Terraform Plan
-      if: github.event_name == 'push'
+      if: github.event_name == 'pull_request' && github.event.pull_request.merged == true
       uses: actions/download-artifact@v4
       with:
         name: tfplan-${{ github.sha }}
         path: .
 
     - name: List downloaded files for debugging
-      if: github.event_name == 'push' 
+      if: github.event_name == 'pull_request' && github.event.pull_request.merged == true 
       run: ls -al
 
     - name: Terraform Apply
