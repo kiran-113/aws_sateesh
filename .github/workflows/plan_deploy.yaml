@@ -24,7 +24,7 @@ jobs:
 
     defaults:
       run:
-        working-directory: './aws_sateesh'  # Path to the Terraform configuration
+        working-directory: '.'  # Path to the Terraform configuration
 
     steps:
     - name: Checkout code
