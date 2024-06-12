@@ -23,9 +23,9 @@ jobs:
     name: 'Terraform'
     runs-on: ubuntu-latest
 
-    defaults:
-      run:
-        working-directory: '.'  # Path to the Terraform configuration
+    # defaults:
+    #   run:
+    #     working-directory: '.'  # Path to the Terraform configuration
 
     steps:
     - name: Checkout code
@@ -59,27 +59,30 @@ jobs:
       if: github.event_name == 'push'
       run: terraform plan -out=tfplan
 
-    - name: Upload Terraform Plan (Persistent Name)
+    - name: List files to check tfplan
       if: github.event_name == 'push'
-      uses: actions/upload-artifact@v4
-      with:
-        name: tfplan
-        path: tfplan
-    
-    - name: Upload Terraform Plan (Unique Name)
+      run: ls -al
+
+    - name: Upload Terraform Plan
       if: github.event_name == 'push'
       uses: actions/upload-artifact@v4
       with:
         name: tfplan-${{ github.sha }}
         path: tfplan
     
-    - name: Download Terraform Plan (Unique Name)
+    - name: Download Terraform Plan
       if: github.event_name == 'pull_request' && github.event.pull_request.merged == true
       uses: actions/download-artifact@v4
       with:
         name: tfplan-${{ github.sha }}
         path: .
 
+    - name: List downloaded files for debugging
+      if: github.event_name == 'pull_request' && github.event.pull_request.merged == true 
+      run: ls -al
+
     - name: Terraform Apply
       if: github.event_name == 'pull_request' && github.event.pull_request.merged == true
       run: terraform apply -auto-approve tfplan
+
+#&& github.event.pull_request.merged == true, && github.event.pull_request.merged == true 74, 81
