@@ -23,9 +23,9 @@ jobs:
     name: 'Terraform'
     runs-on: ubuntu-latest
 
-    defaults:
-      run:
-        working-directory: '.'  # Path to the Terraform configuration
+    # defaults:
+    #   run:
+    #     working-directory: '.'  # Path to the Terraform configuration
 
     steps:
     - name: Checkout code
@@ -75,7 +75,7 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: tfplan-${{ github.sha }}
-        path: tfplan
+        path: .
 
     - name: List downloaded files for debugging
       if: github.event_name == 'push' 
