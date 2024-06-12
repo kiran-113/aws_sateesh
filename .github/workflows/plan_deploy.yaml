@@ -9,6 +9,10 @@ on:
       - main
     types:
       - closed
+permissions:
+  id-token: write
+  contents: read
+  
 env:
   BUCKET_NAME: "githubsample-645373"
   AWS_REGION: "ap-south-1"
