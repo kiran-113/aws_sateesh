@@ -75,7 +75,7 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: tfplan-${{ github.sha }}
-        path: .
+        path: tfplan
 
     - name: List downloaded files for debugging
       if: github.event_name == 'push' 
