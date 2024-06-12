@@ -36,7 +36,7 @@ jobs:
     
     - name: Print current working directory
       run: pwd
-
+      
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v3
 
@@ -59,10 +59,6 @@ jobs:
       if: github.event_name == 'push'
       run: terraform plan -out=tfplan
 
-    - name: Print SHA on push
-      if: github.event_name == 'push'
-      run: echo "Artifact SHA: ${{ github.sha }}"
-
     - name: List files to check tfplan
       if: github.event_name == 'push'
       run: ls -al
@@ -74,19 +70,15 @@ jobs:
         name: tfplan-${{ github.sha }}
         path: tfplan
     
-    - name: Print SHA on pull request merge
-      if: github.event_name == 'pull_request' && github.event.pull_request.merged == true
-      run: echo "Artifact SHA: ${{ github.sha }}"
-
     - name: Download Terraform Plan
-      if: github.event_name == 'pull_request' && github.event.pull_request.merged == true
+      if: github.event_name == 'push' && github.event.pull_request.merged == true
       uses: actions/download-artifact@v4
       with:
         name: tfplan-${{ github.sha }}
         path: .
 
     - name: List downloaded files for debugging
-      if: github.event_name == 'pull_request' && github.event.pull_request.merged == true
+      if: github.event_name == 'push' && github.event.pull_request.merged == true
       run: ls -al
 
     - name: Terraform Apply
