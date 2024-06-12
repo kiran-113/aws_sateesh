@@ -29,6 +29,15 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v3
+    
+    - name: List directory contents for debugging
+      run: ls -al  # List the root of the repository
+    
+    - name: List directory
+      run: pwd
+      
+    - name: Check for aws_sateesh directory
+      run: ls -al ./aws_sateesh  # List content of aws_sateesh directory  
 
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v3
