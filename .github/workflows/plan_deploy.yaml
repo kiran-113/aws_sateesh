@@ -36,9 +36,6 @@ jobs:
     - name: List directory
       run: pwd
       
-    - name: Check for aws_sateesh directory
-      run: ls -al ./aws_sateesh  # List content of aws_sateesh directory  
-
     - name: Setup Terraform
       uses: hashicorp/setup-terraform@v3
 
