@@ -9,6 +9,7 @@ on:
       - main
     types:
       - closed
+
 permissions:
   id-token: write
   contents: read
@@ -30,10 +31,10 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
     
-    - name: List directory contents for debugging
+    - name: List root directory for debugging
       run: ls -al  # List the root of the repository
     
-    - name: List directory
+    - name: Print current working directory
       run: pwd
       
     - name: Setup Terraform
@@ -58,24 +59,26 @@ jobs:
       if: github.event_name == 'push'
       run: terraform plan -out=tfplan
 
-    - name: Upload Terraform plan
+    - name: Upload Terraform Plan (Persistent Name)
+      if: github.event_name == 'push'
       uses: actions/upload-artifact@v4
       with:
         name: tfplan
         path: tfplan
     
-    - name: Upload Terraform plan
+    - name: Upload Terraform Plan (Unique Name)
+      if: github.event_name == 'push'
       uses: actions/upload-artifact@v4
       with:
         name: tfplan-${{ github.sha }}
         path: tfplan
     
-    - name: Download Terraform plan
+    - name: Download Terraform Plan (Unique Name)
+      if: github.event_name == 'pull_request' && github.event.pull_request.merged == true
       uses: actions/download-artifact@v4
       with:
         name: tfplan-${{ github.sha }}
         path: .
-
 
     - name: Terraform Apply
       if: github.event_name == 'pull_request' && github.event.pull_request.merged == true
