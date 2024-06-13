@@ -95,10 +95,6 @@ jobs:
       - name: Terraform Apply
         run: terraform apply ./artifact-dir/tfplan
 
-# if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
-
-
-
 
 # #name: Terraform CI/CD
 
