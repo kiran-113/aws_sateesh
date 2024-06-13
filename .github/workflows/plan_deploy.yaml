@@ -46,19 +46,32 @@ jobs:
         with:
           name: tfplan-${{ github.sha }}
           path: tfplan
+      
+      - name: Set Artifact URL
+        id: set-artifact-url
+        run: echo "::set-output name=url::https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}/artifacts"    
 
   terraform-apply:
     if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
     runs-on: ubuntu-latest
     steps:
+     
+      - name: Set PR Head SHA
+        id: pr_head_sha
+        run: echo "::set-output name=sha::${{ github.event.pull_request.head.sha }}"
+
+
       - name: Checkout code
         uses: actions/checkout@v3
 
       - name: Download plan artifact
         uses: actions/download-artifact@v4
         with:
-          name: tfplan-${{ github.event.pull_request.head.sha }}
-          path: .
+          name: tfplan-${{ steps.pr_head_sha.outputs.sha }}
+          path: ./artifact-dir
+
+      - name: List downloaded files
+        run: ls -l ./artifact-dir    
 
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v2
@@ -73,7 +86,7 @@ jobs:
         run: terraform init
 
       - name: Terraform Apply
-        run: terraform apply tfplan
+        run: terraform apply ./artifact-dir/tfplan
 
 
 
