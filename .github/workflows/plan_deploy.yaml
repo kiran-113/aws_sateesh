@@ -3,10 +3,12 @@ name: Terraform Workflow
 on:
   push:
     branches:
-      - tf
+      - 'tf'
   pull_request:
     branches:
       - main
+    types:
+      - closed  
 
 permissions:
   id-token: write
