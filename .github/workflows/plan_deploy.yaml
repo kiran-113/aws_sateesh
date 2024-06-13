@@ -1,14 +1,12 @@
-name: Terraform CI/CD
+name: Terraform Workflow
 
 on:
   push:
     branches:
-      - 'tf'
+      - tf
   pull_request:
     branches:
       - main
-    types:
-      - closed
 
 permissions:
   id-token: write
@@ -16,73 +14,157 @@ permissions:
 
 env:
   BUCKET_NAME: "githubsample-645373"
-  AWS_REGION: "ap-south-1"
+  AWS_REGION: "ap-south-1"      
 
 jobs:
-  terraform:
-    name: 'Terraform'
+  terraform-plan:
+    if: github.ref == 'refs/heads/tf'
     runs-on: ubuntu-latest
-
-    # defaults:
-    #   run:
-    #     working-directory: '.'  # Path to the Terraform configuration
-
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
-    
-    - name: List root directory for debugging
-      run: ls -al  # List the root of the repository
-    
-    - name: Print current working directory
-      run: pwd
+      - name: Checkout code
+        uses: actions/checkout@v3
+        
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v2
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::666562444707:role/new_oidc_github
+          aws-region: ${{ env.AWS_REGION }}
+        
+      - name: Terraform Init
+        run: terraform init
+        
+      - name: Terraform Plan
+        run: terraform plan -out=tfplan
+
+      - name: Upload plan artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: tfplan-${{ github.sha }}
+          path: tfplan
+
+  terraform-apply:
+    if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Download plan artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: tfplan-${{ github.event.pull_request.head.sha }}
+          path: .
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v2
       
-    - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v3
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::666562444707:role/new_oidc_github
+          aws-region: ${{ env.AWS_REGION }}  
 
-    - name: Configure AWS credentials
-      uses: aws-actions/configure-aws-credentials@v4
-      with:
-        role-to-assume: arn:aws:iam::666562444707:role/new_oidc_github
-        aws-region: ${{ env.AWS_REGION }}
+      - name: Terraform Init
+        run: terraform init
 
-    - name: Terraform Init
-      run: terraform init
+      - name: Terraform Apply
+        run: terraform apply tfplan
 
-    - name: Terraform Format
-      run: terraform fmt
 
-    - name: Terraform Validate
-      run: terraform validate
 
-    - name: Terraform Plan
-      if: github.event_name == 'push'
-      run: terraform plan -out=tfplan
 
-    - name: List files to check tfplan
-      if: github.event_name == 'push'
-      run: ls -al
 
-    - name: Upload Terraform Plan
-      if: github.event_name == 'push'
-      uses: actions/upload-artifact@v4
-      with:
-        name: tfplan-${{ github.sha }}
-        path: tfplan
+
+
+
+# #name: Terraform CI/CD
+
+# on:
+#   push:
+#     branches:
+#       - 'tf'
+#   pull_request:
+#     branches:
+#       - main
+#     types:
+#       - closed
+
+# permissions:
+#   id-token: write
+#   contents: read
+
+# env:
+#   BUCKET_NAME: "githubsample-645373"
+#   AWS_REGION: "ap-south-1"
+
+# jobs:
+#   terraform:
+#     name: 'Terraform'
+#     runs-on: ubuntu-latest
+
+#     # defaults:
+#     #   run:
+#     #     working-directory: '.'  # Path to the Terraform configuration
+
+#     steps:
+#     - name: Checkout code
+#       uses: actions/checkout@v3
     
-    - name: Download Terraform Plan
-      if: github.event_name == 'pull_request' && github.event.pull_request.merged == true
-      uses: actions/download-artifact@v4
-      with:
-        name: tfplan-${{ github.sha }}
-        path: .
+#     - name: List root directory for debugging
+#       run: ls -al  # List the root of the repository
+    
+#     - name: Print current working directory
+#       run: pwd
+      
+#     - name: Setup Terraform
+#       uses: hashicorp/setup-terraform@v3
 
-    - name: List downloaded files for debugging
-      if: github.event_name == 'pull_request' && github.event.pull_request.merged == true 
-      run: ls -al
+#     - name: Configure AWS credentials
+#       uses: aws-actions/configure-aws-credentials@v4
+#       with:
+#         role-to-assume: arn:aws:iam::666562444707:role/new_oidc_github
+#         aws-region: ${{ env.AWS_REGION }}
 
-    - name: Terraform Apply
-      if: github.event_name == 'pull_request' && github.event.pull_request.merged == true
-      run: terraform apply -auto-approve tfplan
+#     - name: Terraform Init
+#       run: terraform init
 
-#&& github.event.pull_request.merged == true, && github.event.pull_request.merged == true 74, 81
+#     - name: Terraform Format
+#       run: terraform fmt
+
+#     - name: Terraform Validate
+#       run: terraform validate
+
+#     - name: Terraform Plan
+#       if: github.event_name == 'push'
+#       run: terraform plan -out=tfplan
+
+#     - name: List files to check tfplan
+#       if: github.event_name == 'push'
+#       run: ls -al
+
+#     - name: Upload Terraform Plan
+#       if: github.event_name == 'push'
+#       uses: actions/upload-artifact@v4
+#       with:
+#         name: tfplan-${{ github.sha }}
+#         path: tfplan
+    
+#     - name: Download Terraform Plan
+#       if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
+#       uses: actions/download-artifact@v4
+#       with:
+#         name: tfplan-${{ github.event.pull_request.head.sha }}
+#         path: .
+
+#     - name: List downloaded files for debugging
+#       if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main' 
+#       run: ls -al
+
+#     - name: Terraform Apply
+#       if: github.event_name == 'pull_request' && github.event.pull_request.merged == true
+#       run: terraform apply -auto-approve tfplan
+
+# #&& github.event.pull_request.merged == true, && github.event.pull_request.merged == true 74, 81
