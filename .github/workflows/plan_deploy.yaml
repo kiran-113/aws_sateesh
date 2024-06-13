@@ -1,4 +1,4 @@
-name: Terraform Workflow
+name: Terraform Workflow latest
 
 on:
   push:
@@ -27,7 +27,7 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
-        
+
       - name: Set up Terraform
         uses: hashicorp/setup-terraform@v2
 
@@ -49,7 +49,7 @@ jobs:
         with:
           name: tfplan-${{ github.sha }}
           path: tfplan
-      
+
       - name: Set Artifact SHA
         id: set-plan-sha
         run: echo "::set-output name=sha::${{ github.sha }}"
@@ -74,7 +74,7 @@ jobs:
       - name: Download plan artifact
         uses: actions/download-artifact@v4
         with:
-          name: tfplan-${{ needs.terraform-plan.outputs.plan_sha }}
+          name: tfplan-${{ steps.pr_head_sha.outputs.sha }}
           path: ./artifact-dir
 
       - name: List downloaded files
