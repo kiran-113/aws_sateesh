@@ -92,8 +92,8 @@ jobs:
       - name: Terraform Init
         run: terraform init
 
-      # - name: Terraform Apply
-      #   run: terraform apply ./artifact-dir/tfplan
+      - name: Terraform Apply
+        run: terraform apply ./artifact-dir/tfplan
 
 # if: github.event.pull_request.merged == true && github.event.pull_request.base.ref == 'main'
 
