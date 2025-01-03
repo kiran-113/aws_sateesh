@@ -130,6 +130,8 @@ jobs:
 # on:
 #   push:
 #     branches: [ "main", "tf" ]
+      - main
+      - tf
 
 # env:
 #   BUCKET_NAME: "githubsample-645373"

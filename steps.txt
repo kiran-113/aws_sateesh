@@ -1,14 +1,22 @@
+Ref: https://aws.amazon.com/blogs/security/use-iam-roles-to-connect-github-actions-to-actions-in-aws/
+
 Create OIDC in aws IAM
     https://us-east-1.console.aws.amazon.com/iam/home?region=eu-west-2#/identity_providers
+    Provider URL : token.actions.githubusercontent.com
+    Audiance: sts.amazonaws.com
 
 Create Role for the above OIDC
+goto roles --> new role --> select WEB IDENTITY --> select identity_providers and audience enter github org and repo --> select admin role --> enter name --> save
+click ok the newly created role --> goto trust relationship --> replace the policy with below and change the required values
+
+
     {
     "Version": "2012-10-17",
     "Statement": [
         {
             "Effect": "Allow",
             "Principal": {
-                "Federated": "arn:aws:iam::666562444707:oidc-provider/token.actions.githubusercontent.com" # Change OIDC ARN
+                "Federated": "arn:aws:iam::666562444707:oidc-provider/token.actions.githubusercontent.com" # Change OIDC ARN and Remove this Commit
             },
             "Action": "sts:AssumeRoleWithWebIdentity",
             "Condition": {
@@ -16,7 +24,7 @@ Create Role for the above OIDC
                     "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
                 },
                 "StringLike": {
-                    "token.actions.githubusercontent.com:sub": "repo:kiran-113/aws_sateesh:*" # Change repo anme
+                    "token.actions.githubusercontent.com:sub": "repo:kiran-113/aws_sateesh:*" # Change repo anme and Remove this Commit
                 },
                 "ForAllValues:StringEquals": {
                     "token.actions.githubusercontent.com:aud": "sts.amazonaws.com",
