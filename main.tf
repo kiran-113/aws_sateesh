@@ -1,5 +1,23 @@
 data "aws_region" "current" {}
 
+data "aws_ami" "ubuntu" {
+  most_recent = true
+
+  filter {
+    name   = "name"
+    values = ["ubuntu/images/hvm-ssd/ubuntu-jammy-22.04-amd64-server-*"]
+  }
+
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+
+  owners = ["099720109477"] # Canonical
+}
+
+
 # Read local index.html file
 locals {
   index_html = filebase64("index.html")
@@ -10,7 +28,7 @@ locals {
 resource "aws_instance" "this" {
   #provider      = aws.ap-east-1
   count           = length(var.instance_names)
-  ami             = "ami-0851b76e8b1bce90b"
+  ami             = aws_ami.ubuntu.id
   instance_type   = "t2.micro"
   key_name        = aws_key_pair.this.key_name
   security_groups = [aws_security_group.allow_tls_rules[count.index].name]
@@ -51,7 +69,7 @@ resource "tls_private_key" "oskey" {
   algorithm = "RSA"
 }
 
-# creates pem file locally 
+# creates pem file locally
 
 resource "local_file" "myterrakey" {
   content  = tls_private_key.oskey.private_key_pem
